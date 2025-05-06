@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { supabase } from "../../services/supabaseClient";
+import { Button } from "@/components/ui/button";
 
-const SaveCombinationButton = ({ user, inputValue, onClear, refreshCombos }) => {
+const SaveCombinationButton = ({ user, inputValue = [], onClear, refreshCombos }) => {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -18,7 +19,7 @@ const SaveCombinationButton = ({ user, inputValue, onClear, refreshCombos }) => 
   };
 
   const handleSave = async () => {
-    if (!user || !inputValue || inputValue.length === 0) return;
+    if (!user || !Array.isArray(inputValue) || inputValue.length === 0) return;
 
     setSaving(true);
     setSaved(false);
@@ -35,8 +36,6 @@ const SaveCombinationButton = ({ user, inputValue, onClear, refreshCombos }) => 
 
       const totals = calculateTotals(inputValue);
 
-      console.log("➡️ Дані для збереження:", enriched);
-
       const { error } = await supabase.from("favorite_combinations").insert([
         {
           user_id: user.id,
@@ -52,29 +51,30 @@ const SaveCombinationButton = ({ user, inputValue, onClear, refreshCombos }) => 
         console.error("❌ Помилка вставки:", error);
       } else {
         console.log("✅ Комбінація успішно збережена");
+        setSaved(true);
+        onClear?.();
+        refreshCombos?.();
       }
-
-      setSaved(true);
-      onClear?.();
-      refreshCombos?.();
     } catch (error) {
       console.error("❌ Помилка при збереженні:", error);
     } finally {
       setSaving(false);
-      setTimeout(() => setSaved(false), 2000);
+      setTimeout(() => setSaved(false), 2500);
     }
   };
 
   return (
-    <div className="mt-4 text-center">
-      <button
+    <div className="mt-6 flex flex-col items-center space-y-2">
+      <Button
         onClick={handleSave}
-        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded shadow"
         disabled={saving}
+        className="px-6 py-2"
       >
         {saving ? "Збереження..." : "❤️ Зберегти комбінацію"}
-      </button>
-      {saved && <p className="text-green-600 mt-2">Комбінацію збережено ✅</p>}
+      </Button>
+      {saved && (
+        <p className="text-green-600 text-sm">Комбінацію збережено ✅</p>
+      )}
     </div>
   );
 };

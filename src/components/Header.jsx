@@ -1,9 +1,8 @@
-// src/components/Header.jsx
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase, getCurrentUser, logout } from "../services/supabaseClient";
-import { Menu, X } from "lucide-react";
-import { AnimatePresence } from "framer-motion";
+import { Menu, X, Flame } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 
 const Header = () => {
   const [user, setUser] = useState(null);
@@ -41,73 +40,102 @@ const Header = () => {
   ];
 
   return (
-    <header className="bg-gray-100 p-4 border-b fixed top-0 left-0 right-0 z-50 shadow-md">
-      <div className="w-full px-4 md:px-8 max-w-screen-xl mx-auto flex justify-between items-center">
-        <h1 className="text-xl font-bold">Калорійний Планер</h1>
+    <header className="bg-white border-b shadow-sm fixed top-0 left-0 right-0 z-50">
+      <div className="max-w-screen-xl mx-auto px-4 md:px-8 py-3 flex justify-between items-center">
+        {/* Логотип */}
+        <Link to="/" className="flex items-center gap-2 font-bold text-lg text-blue-600">
+          <Flame className="w-6 h-6 text-orange-500" />
+          Калорійний Планер
+        </Link>
 
         {/* Desktop menu */}
-        <nav className="hidden md:flex gap-4 items-center">
+        <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
           {navItems.filter(i => i.show).map(i => (
-            <Link key={i.to} to={i.to} className="hover:underline">
+            <Link
+              key={i.to}
+              to={i.to}
+              className="text-gray-700 hover:text-blue-600 transition-colors"
+            >
               {i.label}
             </Link>
           ))}
 
           {user ? (
-            <button onClick={handleLogout} className="text-red-600 underline">
+            <button
+              onClick={handleLogout}
+              className="text-red-600 hover:underline transition"
+            >
               Вийти
             </button>
           ) : (
-            <Link to="/auth" className="text-blue-600">Увійти</Link>
+            <Link
+              to="/auth"
+              className="bg-blue-600 text-white px-4 py-1.5 rounded hover:bg-blue-700 transition"
+            >
+              Увійти
+            </Link>
           )}
         </nav>
 
-        {/* Mobile burger icon */}
-        <button onClick={() => setMenuOpen(!menuOpen)} className="block md:hidden z-50">
+        {/* Mobile menu toggle */}
+        <button
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="block md:hidden text-gray-700 z-50"
+        >
           {menuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
-      {/* Overlay */}
+      {/* Mobile menu overlay */}
       <AnimatePresence>
         {menuOpen && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-40 md:hidden"
-            onClick={() => setMenuOpen(false)}
-          />
-        )}
-      </AnimatePresence>
+          <>
+            <motion.div
+              className="fixed inset-0 bg-black bg-opacity-40 z-40"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMenuOpen(false)}
+            />
+            <motion.nav
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "tween" }}
+              className="fixed top-0 right-0 w-2/3 h-full bg-white shadow-lg p-6 z-50 flex flex-col gap-4 text-lg"
+            >
+              {navItems.filter(i => i.show).map(i => (
+                <Link
+                  key={i.to}
+                  to={i.to}
+                  onClick={() => setMenuOpen(false)}
+                  className="text-gray-800 hover:text-blue-600 border-b py-2"
+                >
+                  {i.label}
+                </Link>
+              ))}
 
-      {/* Mobile menu dropdown */}
-      <AnimatePresence>
-        {menuOpen && (
-          <nav
-            className="fixed top-0 right-0 w-2/3 h-full bg-white shadow-md p-6 md:hidden z-40 text-lg space-y-4"
-          >
-            {navItems.filter(i => i.show).map(i => (
-              <Link
-                key={i.to}
-                to={i.to}
-                onClick={() => setMenuOpen(false)}
-                className="block py-2 border-b"
-              >
-                {i.label}
-              </Link>
-            ))}
-
-            {user ? (
-              <button
-                onClick={() => { handleLogout(); setMenuOpen(false); }}
-                className="text-red-600 underline text-left w-full mt-2"
-              >
-                Вийти
-              </button>
-            ) : (
-              <Link to="/auth" onClick={() => setMenuOpen(false)} className="text-blue-600 block mt-2">
-                Увійти
-              </Link>
-            )}
-          </nav>
+              {user ? (
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setMenuOpen(false);
+                  }}
+                  className="text-red-600 underline mt-4 text-left"
+                >
+                  Вийти
+                </button>
+              ) : (
+                <Link
+                  to="/auth"
+                  onClick={() => setMenuOpen(false)}
+                  className="bg-blue-600 text-white px-4 py-2 rounded mt-4 text-center"
+                >
+                  Увійти
+                </Link>
+              )}
+            </motion.nav>
+          </>
         )}
       </AnimatePresence>
     </header>

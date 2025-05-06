@@ -9,7 +9,6 @@ import {
   CartesianGrid,
 } from "recharts";
 
-// 📆 Формат дати ISO → "dd.mm, HH:MM"
 const formatDate = (isoString) => {
   const date = new Date(isoString);
   const dd = String(date.getDate()).padStart(2, "0");
@@ -19,90 +18,87 @@ const formatDate = (isoString) => {
   return `${dd}.${mm}, ${hh}:${min}`;
 };
 
-const Measurements = ({
-  weight,
-  setWeight,
-  height,
-  setHeight,
-  history,
-  onSave,
-}) => {
+const Measurements = ({ weight, setWeight, height, setHeight, history, onSave }) => {
+  const latest = history[0];
+  const previous = history[1];
+  const diff = latest && previous ? (latest.weight - previous.weight).toFixed(1) : 0;
+  const isGain = diff > 0;
+
   return (
-    <div className="bg-white p-4 rounded shadow col-span-1">
-      <h2 className="text-xl font-bold mb-3">Виміри</h2>
-      <input
-        type="number"
-        placeholder="Вага (кг)"
-        value={weight}
-        onChange={(e) => setWeight(e.target.value)}
-        className="border p-2 mb-2 w-full rounded"
-      />
-      <input
-        type="number"
-        placeholder="Зріст (см)"
-        value={height}
-        onChange={(e) => setHeight(e.target.value)}
-        className="border p-2 mb-2 w-full rounded"
-      />
+    <div className="bg-white p-6 rounded-2xl shadow-md">
+      <h2 className="text-2xl font-bold mb-4 text-center">📏 Виміри тіла</h2>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+        <input
+          type="number"
+          placeholder="Вага (кг)"
+          value={weight}
+          onChange={(e) => setWeight(e.target.value)}
+          className="border border-gray-300 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-500"
+        />
+        <input
+          type="number"
+          placeholder="Зріст (см)"
+          value={height}
+          onChange={(e) => setHeight(e.target.value)}
+          className="border border-gray-300 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
       <button
         onClick={onSave}
-        className="bg-blue-600 text-white py-2 px-4 rounded w-full"
+        className="w-full bg-blue-600 hover:bg-blue-700 transition text-white font-semibold py-2 rounded-lg"
       >
-        Зберегти
+        💾 Зберегти
       </button>
 
-      {history.length > 1 && (() => {
-        const latest = history[0];
-        const previous = history[1];
-        const diff = (latest.weight - previous.weight).toFixed(1);
-        const isGain = diff > 0;
-
-        return (
-          <div className="mt-4 text-sm">
-            <strong>Зміна:</strong>{" "}
-            <span className={isGain ? "text-green-700" : "text-red-600"}>
-              {isGain ? "📈 +" : "📉 "}
-              {Math.abs(diff)} кг з {formatDate(previous.date)} по {formatDate(latest.date)}
-            </span>
-          </div>
-        );
-      })()}
-
-      {history.length > 0 && (
-        <ul className="mt-4 text-sm space-y-1 max-h-48 overflow-y-auto">
-          {history.map((item, idx) => (
-            <li key={idx}>
-              {formatDate(item.date)} — {item.weight} кг, {item.height} см
-            </li>
-          ))}
-        </ul>
+      {latest && previous && (
+        <div className="mt-5 text-sm text-center">
+          <strong>Зміна:</strong>{" "}
+          <span className={isGain ? "text-green-600" : "text-red-600"}>
+            {isGain ? "📈 +" : "📉 -"}{Math.abs(diff)} кг
+          </span>
+          <span className="text-gray-500"> з {formatDate(previous.date)} по {formatDate(latest.date)}</span>
+        </div>
       )}
 
-      {/* Графік */}
       {history.length > 0 && (
         <div className="mt-6">
-          <h3 className="text-sm font-semibold mb-1">Графік зміни ваги</h3>
-          <ResponsiveContainer width="100%" height={180}>
+          <h3 className="font-semibold text-sm text-gray-700 mb-2">📅 Історія записів</h3>
+          <ul className="max-h-40 overflow-y-auto text-sm space-y-1 text-gray-700 px-2">
+            {history.map((item, idx) => (
+              <li key={idx} className="border-b pb-1">
+                {formatDate(item.date)} — <strong>{item.weight} кг</strong>, {item.height} см
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {history.length > 1 && (
+        <div className="mt-8">
+          <h3 className="text-sm font-semibold mb-2 text-gray-700">📊 Графік змін ваги</h3>
+          <ResponsiveContainer width="100%" height={200}>
             <LineChart
               data={history.slice().reverse()}
-              margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+              margin={{ top: 5, right: 20, left: 10, bottom: 30 }}
             >
-              <CartesianGrid strokeDasharray="3 3" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis
                 dataKey="date"
-                angle={-45}
-                textAnchor="end"
-                height={60}
                 tickFormatter={formatDate}
+                angle={-30}
+                textAnchor="end"
+                height={50}
               />
               <YAxis unit=" кг" />
               <Tooltip labelFormatter={formatDate} />
               <Line
                 type="monotone"
                 dataKey="weight"
-                stroke="#1d4ed8"
-                strokeWidth={2}
-                dot={{ r: 3 }}
+                stroke="#2563eb"
+                strokeWidth={3}
+                dot={{ r: 4 }}
               />
             </LineChart>
           </ResponsiveContainer>
