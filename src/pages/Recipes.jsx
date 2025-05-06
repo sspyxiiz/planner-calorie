@@ -4,6 +4,18 @@ import { generateRecipe } from "../services/aiRecipesApi";
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser, supabase } from "../services/supabaseClient";
 
+const parseNutritionFromText = (text) => {
+  const pattern = /КБЖУ.*?Калор[іі]ї[:\-\s]*([\d,.]+).*?Білк[иі][:\-\s]*([\d,.]+).*?Жир[и][:\-\s]*([\d,.]+).*?Вуглевод[и][:\-\s]*([\d,.]+)/is;
+  const match = text.match(pattern);
+  if (!match) return null;
+  return {
+    calories: parseFloat(match[1].replace(",", ".")) || 0,
+    protein: parseFloat(match[2].replace(",", ".")) || 0,
+    fat: parseFloat(match[3].replace(",", ".")) || 0,
+    carbs: parseFloat(match[4].replace(",", ".")) || 0,
+  };
+};
+
 const Recipes = () => {
   const [ingredients, setIngredients] = useState("");
   const [cuisine, setCuisine] = useState("Українська");
@@ -19,60 +31,85 @@ const Recipes = () => {
     setLoading(false);
   };
 
-  const handleAddToMealPlanner = async () => {
-    if (!generatedText) return;
-
+  const handleSave = async () => {
     const user = await getCurrentUser();
-    if (!user) {
-      alert("Не вдалося визначити користувача");
-      return;
-    }
+    if (!user) return alert("Не вдалося визначити користувача");
 
-    const date = new Date().toISOString().slice(0, 10);
-    const meal_type = "сніданок";
-
-    const parsedItems = [];
-    if (ingredients.toLowerCase().includes("курка")) {
-      parsedItems.push({
-        name: "Курка",
-        weight: 300,
-        calories: 239,
-        protein: 27,
-        fat: 14,
-        carbs: 0,
-      });
-    }
+    const nutrition = parseNutritionFromText(generatedText);
 
     const plan = {
       user_id: user.id,
-      date,
-      meal_type,
+      date: new Date().toISOString().slice(0, 10),
+      meal_type: "сніданок",
       title: `AI-рецепт (${ingredients})`,
       notes: generatedText,
-      total_calories: parsedItems.reduce((sum, i) => sum + i.calories, 0),
-      total_protein: parsedItems.reduce((sum, i) => sum + i.protein, 0),
-      total_fat: parsedItems.reduce((sum, i) => sum + i.fat, 0),
-      total_carbs: parsedItems.reduce((sum, i) => sum + i.carbs, 0),
-      items: parsedItems,
-      kitchen: cuisine, // 🆕 тип кухні
+      kitchen: cuisine,
+      total_calories: nutrition?.calories || 0,
+      total_protein: nutrition?.protein || 0,
+      total_fat: nutrition?.fat || 0,
+      total_carbs: nutrition?.carbs || 0,
+      items: [],
     };
 
-    console.log("🟡 План для вставки в Supabase:", plan);
-
     const { error } = await supabase.from("meal_plans").insert([plan]);
-
     if (error) {
       console.error("❌ Supabase помилка:", error);
       alert("Не вдалося зберегти рецепт ❌");
     } else {
       alert("✅ Рецепт збережено в MealPlanner!");
+      setGeneratedText("");
       navigate("/profile");
     }
   };
 
+  const renderRecipePreview = () => {
+    const lines = generatedText.split("\n").filter(Boolean);
+    const title = lines[0] || "";
+    const ingredientsStart = lines.findIndex((line) => line.toLowerCase().includes("інгредієнти"));
+    const instructionStart = lines.findIndex((line) => line.toLowerCase().includes("інструкц"));
+    const kbjuStart = lines.findIndex((line) => line.toLowerCase().includes("кбжу"));
+
+    return (
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold text-center text-green-700">{title}</h2>
+
+        {ingredientsStart !== -1 && instructionStart !== -1 && (
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800">🧂 Інгредієнти</h3>
+            <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+              {lines.slice(ingredientsStart + 1, instructionStart).map((line, idx) => (
+                <li key={idx}>{line}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {instructionStart !== -1 && (
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800">👨‍🍳 Інструкція</h3>
+            <ol className="list-decimal list-inside text-sm text-gray-700 space-y-1">
+              {lines.slice(instructionStart + 1, kbjuStart !== -1 ? kbjuStart : undefined).map((line, idx) => (
+                <li key={idx}>{line}</li>
+              ))}
+            </ol>
+          </div>
+        )}
+
+        {kbjuStart !== -1 && (
+          <div className="bg-green-50 border border-green-200 rounded p-4 text-sm text-green-800">
+            <h3 className="font-semibold mb-1">КБЖУ (на 100 г):</h3>
+            {lines.slice(kbjuStart + 1).map((line, idx) => (
+              <div key={idx}>{line}</div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
-    <div className="max-w-2xl mx-auto p-4">
-      <h1 className="text-xl font-bold mb-4 text-center">Генерація рецептів</h1>
+    <div className="max-w-2xl mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-6 text-center">🍲 Генерація рецептів</h1>
 
       <label className="block mb-2 font-medium">Інгредієнти (через кому):</label>
       <input
@@ -86,7 +123,7 @@ const Recipes = () => {
       <select
         value={cuisine}
         onChange={(e) => setCuisine(e.target.value)}
-        className="border p-2 rounded w-full mb-4"
+        className="border p-2 rounded w-full mb-6"
       >
         <option>Українська</option>
         <option>Італійська</option>
@@ -95,22 +132,34 @@ const Recipes = () => {
 
       <button
         onClick={handleGenerate}
-        className="bg-green-600 text-white px-4 py-2 rounded shadow mb-4"
+        className="bg-green-600 text-white px-6 py-2 rounded shadow hover:bg-green-700 transition"
         disabled={loading}
       >
         {loading ? "Генерація..." : "Згенерувати рецепт"}
       </button>
 
       {generatedText && (
-        <div className="bg-gray-100 p-4 rounded mt-4 whitespace-pre-wrap">
-          <h3 className="font-semibold mb-2">Результат:</h3>
-          <p>{generatedText}</p>
-          <button
-            onClick={handleAddToMealPlanner}
-            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded"
-          >
-            ➕ Додати рецепт у MealPlanner
-          </button>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white max-w-2xl w-full rounded-lg p-6 shadow-lg relative overflow-y-auto max-h-[90vh]">
+            <button
+              onClick={() => setGeneratedText("")}
+              className="absolute top-3 right-3 text-gray-500 hover:text-red-500 text-lg font-bold"
+            >
+              ×
+            </button>
+
+            <h3 className="font-semibold mb-4 text-xl text-center">🍽️ Згенерований рецепт</h3>
+            <div className="text-gray-800 text-sm leading-relaxed space-y-4">
+              {renderRecipePreview()}
+            </div>
+
+            <button
+              onClick={handleSave}
+              className="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded"
+            >
+              ➕ Додати у MealPlanner
+            </button>
+          </div>
         </div>
       )}
     </div>

@@ -125,26 +125,18 @@ const Profile = () => {
         </>
       )}
 
-      {activeTab === "combinations" && (
-        <>
-          <button
-            onClick={async () => {
-              const { data } = await fetchFavoriteCombos(user.id);
-              console.log("🔄 Комбінації після ручного оновлення:", data);
-              setFavoriteCombos(data || []);
-            }}
-            className="text-blue-600 underline text-sm mb-2"
-          >
-            🔄 Оновити комбінації
-          </button>
-
-          <FavoriteCombos
-            combos={favoriteCombos}
-            onAdd={handleAddCombo}
-            onDelete={handleDeleteCombo}
-          />
-        </>
-      )}
+{activeTab === "combinations" && (
+  <FavoriteCombos
+    combos={favoriteCombos}
+    onAdd={handleAddCombo}
+    onDelete={handleDeleteCombo}
+    onRefresh={async () => {
+      const { data } = await fetchFavoriteCombos(user.id);
+      console.log("🔄 Оновлення вручну:", data);
+      setFavoriteCombos(data || []);
+    }}
+  />
+)}
 
 {activeTab === "analytics" && (
   <AnalyticsTab />
