@@ -40,8 +40,8 @@ const Recipes = () => {
     const plan = {
       user_id: user.id,
       date: new Date().toISOString().slice(0, 10),
-      meal_type: "сніданок",
-      title: `AI-рецепт (${ingredients})`,
+      meal_type: "Страва",
+      title: `Рецепт (${ingredients})`,
       notes: generatedText,
       kitchen: cuisine,
       total_calories: nutrition?.calories || 0,
@@ -128,6 +128,7 @@ const Recipes = () => {
         <option>Українська</option>
         <option>Італійська</option>
         <option>Азійська</option>
+        <option>Індійська</option>
       </select>
 
       <button

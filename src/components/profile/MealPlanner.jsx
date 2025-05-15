@@ -90,10 +90,10 @@ const MealPlanner = () => {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-center">Планування харчування</h2>
+      <h2 className="text-2xl font-bold text-center">Список рецептів</h2>
 
       {plans.length === 0 ? (
-        <p className="text-gray-500 text-center">Немає збережених планів.</p>
+        <p className="text-gray-500 text-center">Немає збережених рецептів.</p>
       ) : (
         <div ref={sliderRef} className="keen-slider">
           {plans.map((plan, index) => (

@@ -6,7 +6,7 @@ const ProfileTabs = ({ activeTab, setActiveTab }) => {
     { key: "measurements", label: "Виміри" },
     { key: "combinations", label: "Комбінації продуктів" },
     { key: "analytics", label: "Аналітика" },
-    { key: "mealplanner", label: "Планування меню" },
+    { key: "mealplanner", label: "Збежені рецепти" },
   ];
 
   return (

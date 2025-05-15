@@ -46,7 +46,7 @@ const Home = () => {
           🍽️ Пошук КБЖУ продуктів
         </h1>
         <p className="text-gray-600 dark:text-gray-400 mt-2 text-sm">
-          Введіть продукти через кому: <em>курка, рис, огірок</em>
+          Наприклад:  <em>курка, рис, огірок</em>
         </p>
       </div>
 
@@ -54,7 +54,7 @@ const Home = () => {
         <input
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          placeholder="Наприклад: рис, курка, огірок"
+          placeholder="Введіть продукти: "
           className="flex-1 border border-gray-300 dark:border-zinc-700 bg-white/60 dark:bg-zinc-800/60 backdrop-blur-md px-4 py-3 rounded-xl shadow focus:outline-none focus:ring-2 focus:ring-green-500"
         />
         <button

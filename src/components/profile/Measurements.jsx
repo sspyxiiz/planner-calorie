@@ -26,30 +26,30 @@ const Measurements = ({ weight, setWeight, height, setHeight, history, onSave })
 
   return (
     <div className="bg-white p-6 rounded-2xl shadow-md">
-      <h2 className="text-2xl font-bold mb-4 text-center">📏 Виміри тіла</h2>
+      <h2 className="text-2xl font-bold mb-6 text-center">📏 Виміри тіла</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <input
           type="number"
           placeholder="Вага (кг)"
           value={weight}
           onChange={(e) => setWeight(e.target.value)}
-          className="border border-gray-300 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-500"
+          className="border border-gray-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
         />
         <input
           type="number"
           placeholder="Зріст (см)"
           value={height}
           onChange={(e) => setHeight(e.target.value)}
-          className="border border-gray-300 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-500"
+          className="border border-gray-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
         />
       </div>
 
       <button
         onClick={onSave}
-        className="w-full bg-blue-600 hover:bg-blue-700 transition text-white font-semibold py-2 rounded-lg"
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition"
       >
-        💾 Зберегти
+        💾 Зберегти вимір
       </button>
 
       {latest && previous && (
@@ -64,7 +64,7 @@ const Measurements = ({ weight, setWeight, height, setHeight, history, onSave })
 
       {history.length > 0 && (
         <div className="mt-6">
-          <h3 className="font-semibold text-sm text-gray-700 mb-2">📅 Історія записів</h3>
+          <h3 className="font-semibold text-sm text-gray-700 mb-2">📅 Історія вимірів</h3>
           <ul className="max-h-40 overflow-y-auto text-sm space-y-1 text-gray-700 px-2">
             {history.map((item, idx) => (
               <li key={idx} className="border-b pb-1">
@@ -77,31 +77,33 @@ const Measurements = ({ weight, setWeight, height, setHeight, history, onSave })
 
       {history.length > 1 && (
         <div className="mt-8">
-          <h3 className="text-sm font-semibold mb-2 text-gray-700">📊 Графік змін ваги</h3>
-          <ResponsiveContainer width="100%" height={200}>
-            <LineChart
-              data={history.slice().reverse()}
-              margin={{ top: 5, right: 20, left: 10, bottom: 30 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis
-                dataKey="date"
-                tickFormatter={formatDate}
-                angle={-30}
-                textAnchor="end"
-                height={50}
-              />
-              <YAxis unit=" кг" />
-              <Tooltip labelFormatter={formatDate} />
-              <Line
-                type="monotone"
-                dataKey="weight"
-                stroke="#2563eb"
-                strokeWidth={3}
-                dot={{ r: 4 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          <h3 className="text-sm font-semibold mb-2 text-gray-700">📊 Графік зміни ваги</h3>
+          <div className="w-full h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={history.slice().reverse()}
+                margin={{ top: 5, right: 20, left: 10, bottom: 30 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={formatDate}
+                  angle={-30}
+                  textAnchor="end"
+                  height={50}
+                />
+                <YAxis unit=" кг" />
+                <Tooltip labelFormatter={formatDate} />
+                <Line
+                  type="monotone"
+                  dataKey="weight"
+                  stroke="#2563eb"
+                  strokeWidth={3}
+                  dot={{ r: 4 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       )}
     </div>

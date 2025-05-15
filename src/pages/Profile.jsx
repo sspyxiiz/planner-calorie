@@ -1,19 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  getCurrentUser,
-  saveUserStat,
-  fetchUserStats,
-  fetchFavorites,
-  deleteFavorite,
-  fetchFavoriteCombos,
-  deleteFavoriteCombo,
-  supabase,
-} from "../services/supabaseClient";
+import { supabase } from "../services/supabaseClient";
 
 import Measurements from "../components/profile/Measurements";
 import FavoriteCombos from "../components/profile/FavoriteCombos";
-import RecipeAnalytics from "../components/profile/RecipeAnalytics";
 import ProfileTabs from "../components/profile/ProfileTabs";
 import MealPlanner from "../components/profile/MealPlanner";
 import AnalyticsTab from "../components/profile/AnalyticsTab";
@@ -25,83 +15,90 @@ const Profile = () => {
   const [weight, setWeight] = useState("");
   const [height, setHeight] = useState("");
   const [history, setHistory] = useState([]);
-
-  const [favorites, setFavorites] = useState([]);
   const [favoriteCombos, setFavoriteCombos] = useState([]);
-
   const [activeTab, setActiveTab] = useState("measurements");
 
   useEffect(() => {
-    getCurrentUser().then(async (u) => {
-      if (!u) {
-        navigate("/auth");
-      } else {
-        console.log("👤 Користувач у профілі:", u);
-        setUser(u);
-
-        const [statsRes, favsRes, combosRes] = await Promise.all([
-          fetchUserStats(u.id),
-          fetchFavorites(u.id),
-          fetchFavoriteCombos(u.id),
-        ]);
-
-        console.log("📊 Комбінації з бази:", combosRes.data);
-
-        setHistory(statsRes.data || []);
-        setFavorites(favsRes.data || []);
-        setFavoriteCombos(combosRes.data || []);
-      }
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) navigate("/auth");
+      else setUser(user);
     });
   }, [navigate]);
 
+  useEffect(() => {
+    if (!user) return;
+    const fetchProtected = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
+      // Отримання комбінацій з бекенду
+      const resCombos = await fetch("http://localhost:5000/api/combos", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const combosData = await resCombos.json();
+      setFavoriteCombos(combosData.data || []);
+
+      // Отримання вимірювань з бекенду
+      const resStats = await fetch("http://localhost:5000/api/stats", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const statsData = await resStats.json();
+      setHistory(statsData.data || []);
+    };
+
+    fetchProtected();
+  }, [user]);
+
   const handleSave = async () => {
     if (weight && height && user) {
-      await saveUserStat(user.id, parseFloat(weight), parseFloat(height));
-      const { data } = await fetchUserStats(user.id);
-      setHistory(data || []);
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
+      await fetch("http://localhost:5000/api/stats", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ weight, height }),
+      });
+
+      setHistory(prev => [...prev, { weight, height, date: new Date().toISOString() }]);
       setWeight("");
       setHeight("");
     }
   };
 
-  const handleDeleteFavorite = async (id) => {
-    await deleteFavorite(id);
-    const { data } = await fetchFavorites(user.id);
-    setFavorites(data || []);
-  };
-
   const handleAddCombo = async (combination) => {
-    if (!user) return;
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
 
-    try {
-      console.log("📦 Спроба збереження комбінації:", combination);
-      await supabase.from("favorite_combinations").insert([
-        {
-          user_id: user.id,
-          combination,
-        },
-      ]);
+    await fetch("http://localhost:5000/api/combos", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ combination }),
+    });
 
-      const { data } = await fetchFavoriteCombos(user.id);
-      console.log("📦 Комбінації після збереження:", data);
-
-      const parsed = data.map((combo) => ({
-        ...combo,
-        combination: typeof combo.combination === "string"
-          ? JSON.parse(combo.combination)
-          : combo.combination,
-      }));
-
-      setFavoriteCombos(parsed);
-    } catch (error) {
-      console.error("❌ Помилка при збереженні комбінації:", error);
-    }
+    const res = await fetch("http://localhost:5000/api/combos", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const result = await res.json();
+    setFavoriteCombos(result.data || []);
   };
 
   const handleDeleteCombo = async (id) => {
-    await deleteFavoriteCombo(id);
-    const { data } = await fetchFavoriteCombos(user.id);
-    setFavoriteCombos(data || []);
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+
+    await fetch(`http://localhost:5000/api/combos/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    setFavoriteCombos(prev => prev.filter(c => c.id !== id));
   };
 
   if (!user) return null;
@@ -113,38 +110,36 @@ const Profile = () => {
       <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {activeTab === "measurements" && (
-        <>
-          <Measurements
-            weight={weight}
-            setWeight={setWeight}
-            height={height}
-            setHeight={setHeight}
-            history={history}
-            onSave={handleSave}
-          />
-        </>
+        <Measurements
+          weight={weight}
+          setWeight={setWeight}
+          height={height}
+          setHeight={setHeight}
+          history={history}
+          onSave={handleSave}
+        />
       )}
 
-{activeTab === "combinations" && (
-  <FavoriteCombos
-    combos={favoriteCombos}
-    onAdd={handleAddCombo}
-    onDelete={handleDeleteCombo}
-    onRefresh={async () => {
-      const { data } = await fetchFavoriteCombos(user.id);
-      console.log("🔄 Оновлення вручну:", data);
-      setFavoriteCombos(data || []);
-    }}
-  />
-)}
-
-{activeTab === "analytics" && (
-  <AnalyticsTab />
-)}
-
-      {activeTab === "mealplanner" && (
-        <MealPlanner user={user} />
+      {activeTab === "combinations" && (
+        <FavoriteCombos
+          combos={favoriteCombos}
+          onAdd={handleAddCombo}
+          onDelete={handleDeleteCombo}
+          onRefresh={async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            const token = session?.access_token;
+            const res = await fetch("http://localhost:5000/api/combos", {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            const result = await res.json();
+            setFavoriteCombos(result.data || []);
+          }}
+        />
       )}
+
+      {activeTab === "analytics" && <AnalyticsTab />}
+
+      {activeTab === "mealplanner" && <MealPlanner user={user} />}
     </div>
   );
 };

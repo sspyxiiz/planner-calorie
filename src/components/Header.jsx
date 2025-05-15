@@ -45,7 +45,7 @@ const Header = () => {
         {/* Логотип */}
         <Link to="/" className="flex items-center gap-2 font-bold text-lg text-blue-600">
           <Flame className="w-6 h-6 text-orange-500" />
-          Калорійний Планер
+          Планер калорій
         </Link>
 
         {/* Desktop menu */}

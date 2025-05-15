@@ -40,12 +40,11 @@ const Auth = () => {
       >
         <div className="bg-zinc-900 text-white p-8 flex flex-col justify-between dark:bg-zinc-800">
           <div>
-            <h1 className="text-xl font-bold mb-4">🍽 Калорійний Планер</h1>
+            <h1 className="text-xl font-bold mb-4">🍽 Планер калорій</h1>
             <p className="text-gray-400">
-              "Цей сервіс допомагає мені відслідковувати харчування та краще планувати раціон."
             </p>
           </div>
-          <p className="mt-6 text-sm text-gray-500">— Користувач Анастасія</p>
+          <p className="mt-6 text-sm text-gray-500">Цей сервіс допомагає відслідковувати харчування та краще планувати раціон.</p>
         </div>
 
         <div className="p-8 dark:text-white">
@@ -86,7 +85,7 @@ const Auth = () => {
 
             <div className="flex items-center gap-2 text-gray-400">
               <div className="flex-1 border-t"></div>
-              <span className="text-sm">або</span>
+              <span className="text-sm"></span>
               <div className="flex-1 border-t"></div>
             </div>
 
