@@ -141,3 +141,21 @@ app.get('/api/combos', authenticate, async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+app.get('/api/analytics/weight-summary', authenticate, async (req, res) => {
+  const { data, error } = await supabase
+    .from('user_stats')
+    .select('weight, date')
+    .eq('user_id', req.user.id)
+    .gte('date', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
+
+  if (error) return res.status(500).json({ error });
+
+  if (!data || data.length === 0) {
+    return res.json({ average_weight: null, count: 0 });
+  }
+
+  const total = data.reduce((sum, item) => sum + item.weight, 0);
+  const avg = total / data.length;
+
+  res.json({ average_weight: parseFloat(avg.toFixed(2)), count: data.length });
+});
