@@ -15,7 +15,6 @@ const AnalyticsTab = () => {
 
       setUser(user);
 
-      // Отримати рецепти
       const { data: recipes, error } = await supabase
         .from("meal_plans")
         .select("*")
@@ -23,7 +22,6 @@ const AnalyticsTab = () => {
 
       if (!error) setArchive(recipes || []);
 
-      // Отримати середню вагу
       const { data: sessionData } = await supabase.auth.getSession();
       const token = sessionData?.session?.access_token;
 

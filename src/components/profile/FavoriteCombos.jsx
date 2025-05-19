@@ -13,7 +13,6 @@ import { RotateCcw, Trash2 } from "lucide-react";
 const FavoriteCombos = ({ combos = [], onAdd, onDelete, onRefresh }) => {
   return (
     <div className="space-y-6">
-      {/* Кнопка оновлення по центру зверху */}
       <div className="flex justify-center pt-4">
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
         {onRefresh && (
@@ -25,12 +24,12 @@ const FavoriteCombos = ({ combos = [], onAdd, onDelete, onRefresh }) => {
         </motion.div>
       </div>
 
-      {/* Повідомлення, якщо немає комбінацій */}
+      
       {combos.length === 0 && (
         <p className="text-gray-500 text-center">Немає збережених комбінацій.</p>
       )}
 
-      {/* Відображення комбінацій */}
+      
       {combos.map((combo, idx) => (
         <motion.div
           key={combo.id || idx}

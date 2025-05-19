@@ -31,14 +31,12 @@ const Profile = () => {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
 
-      // Отримання комбінацій з бекенду
       const resCombos = await fetch("http://localhost:5000/api/combos", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const combosData = await resCombos.json();
       setFavoriteCombos(combosData.data || []);
 
-      // Отримання вимірювань з бекенду
       const resStats = await fetch("http://localhost:5000/api/stats", {
         headers: { Authorization: `Bearer ${token}` },
       });

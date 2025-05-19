@@ -1,5 +1,3 @@
-// src/services/productDictionary.js
-
 export const PRODUCT_TRANSLATIONS = {
     "яблуко": "apple",
     "банан": "banana",

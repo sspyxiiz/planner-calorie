@@ -1,4 +1,3 @@
-// src/pages/Recipes.jsx
 import React, { useState } from "react";
 import { generateRecipe } from "../services/aiRecipesApi";
 import { useNavigate } from "react-router-dom";

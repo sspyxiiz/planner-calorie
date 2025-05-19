@@ -1,4 +1,3 @@
-// src/components/profile/RecipeAnalytics.jsx
 import React from "react";
 import {
   PieChart,

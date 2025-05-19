@@ -1,4 +1,3 @@
-// server/index.js
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -12,13 +11,11 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// Supabase client (server-side)
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-// Middleware: перевірка JWT access токену з клієнта
 const authenticate = async (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -36,19 +33,16 @@ const authenticate = async (req, res, next) => {
   }
 };
 
-// 🔐 Отримання поточного користувача
 app.get('/api/me', authenticate, (req, res) => {
   res.json({ user: req.user });
 });
 
-// 🔐 Отримання всіх користувачів (адмін)
 app.get('/api/users', async (req, res) => {
   const { data, error } = await supabase.auth.admin.listUsers();
   if (error) return res.status(500).json({ error });
   res.json(data);
 });
 
-// 📥 Додавання плану харчування (захищено)
 app.post('/api/meal', authenticate, async (req, res) => {
   const { title, date, meal_type, notes, total_calories, total_protein, total_fat, total_carbs } = req.body;
 
@@ -70,7 +64,7 @@ app.post('/api/meal', authenticate, async (req, res) => {
   res.status(201).json({ message: 'Meal plan inserted' });
 });
 
-// 🔐 Збереження нової комбінації продуктів
+
 app.post('/api/combos', authenticate, async (req, res) => {
   const { combination } = req.body;
 
@@ -85,7 +79,7 @@ app.post('/api/combos', authenticate, async (req, res) => {
   res.status(201).json({ message: 'Combination added' });
 });
 
-// 🔐 Видалення комбінації
+
 app.delete('/api/combos/:id', authenticate, async (req, res) => {
   const { id } = req.params;
 
@@ -99,7 +93,6 @@ app.delete('/api/combos/:id', authenticate, async (req, res) => {
   res.status(200).json({ message: 'Combination deleted' });
 });
 
-// 🔐 Збереження вимірів (вага, зріст)
 app.post('/api/stats', authenticate, async (req, res) => {
   const { weight, height } = req.body;
 
@@ -116,7 +109,6 @@ app.post('/api/stats', authenticate, async (req, res) => {
   res.status(201).json({ message: 'Stats saved' });
 });
 
-// 🔐 Отримання вимірів користувача
 app.get('/api/stats', authenticate, async (req, res) => {
   const { data, error } = await supabase
     .from('user_stats')
@@ -128,7 +120,6 @@ app.get('/api/stats', authenticate, async (req, res) => {
   res.json({ data });
 });
 
-// 🔐 Отримання улюблених комбінацій користувача
 app.get('/api/combos', authenticate, async (req, res) => {
   const { data, error } = await supabase
     .from('favorite_combinations')
