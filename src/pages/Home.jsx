@@ -1,4 +1,3 @@
-// src/pages/Home.jsx
 import React, { useState } from "react";
 import { searchProduct } from "../services/productApi";
 import { getCurrentUser } from "../services/supabaseClient";

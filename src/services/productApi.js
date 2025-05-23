@@ -1,4 +1,3 @@
-// src/services/productApi.js
 import axios from "axios";
 import { PRODUCT_TRANSLATIONS } from "./productDictionary";
 
@@ -9,7 +8,7 @@ export const searchProduct = async (rawInput) => {
   const productList = rawInput
     .split(",")
     .map((p) => p.trim().toLowerCase())
-    .filter(Boolean); // Видалити порожні значення
+    .filter(Boolean);
 
   const results = [];
 

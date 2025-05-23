@@ -1,4 +1,3 @@
-// src/pages/Auth.jsx
 import React, { useState } from "react";
 import { supabase } from "../services/supabaseClient";
 import { useNavigate } from "react-router-dom";
