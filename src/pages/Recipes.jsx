@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { getCurrentUser, supabase } from "../services/supabaseClient";
 
 const parseNutritionFromText = (text) => {
-  const pattern = /КБЖУ.*?Калор[іі]ї[:\-\s]*([\d,.]+).*?Білк[иі][:\-\s]*([\d,.]+).*?Жир[и][:\-\s]*([\d,.]+).*?Вуглевод[и][:\-\s]*([\d,.]+)/is;
+  const pattern = /КБЖВ.*?Калор[іі]ї[:\-\s]*([\d,.]+).*?Білк[иі][:\-\s]*([\d,.]+).*?Жир[и][:\-\s]*([\d,.]+).*?Вуглевод[и][:\-\s]*([\d,.]+)/is;
   const match = text.match(pattern);
   if (!match) return null;
   return {
@@ -66,7 +66,7 @@ const Recipes = () => {
     const title = lines[0] || "";
     const ingredientsStart = lines.findIndex((line) => line.toLowerCase().includes("інгредієнти"));
     const instructionStart = lines.findIndex((line) => line.toLowerCase().includes("інструкц"));
-    const kbjuStart = lines.findIndex((line) => line.toLowerCase().includes("кбжу"));
+    const kbjuStart = lines.findIndex((line) => line.toLowerCase().includes("кбжв"));
 
     return (
       <div className="space-y-4">
@@ -96,7 +96,7 @@ const Recipes = () => {
 
         {kbjuStart !== -1 && (
           <div className="bg-green-50 border border-green-200 rounded p-4 text-sm text-green-800">
-            <h3 className="font-semibold mb-1">КБЖУ (на 100 г):</h3>
+            <h3 className="font-semibold mb-1">КБЖВ (на 100 г):</h3>
             {lines.slice(kbjuStart + 1).map((line, idx) => (
               <div key={idx}>{line}</div>
             ))}

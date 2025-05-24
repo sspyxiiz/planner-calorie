@@ -42,7 +42,7 @@ const Home = () => {
 
       <div className="text-center mb-10">
         <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">
-          🍽️ Пошук КБЖУ продуктів
+          🍽️ Пошук КБЖВ продуктів
         </h1>
         <p className="text-gray-600 dark:text-gray-400 mt-2 text-sm">
           Наприклад:  <em>курка, рис, огірок</em>
