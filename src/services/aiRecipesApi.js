@@ -4,7 +4,7 @@ const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemi
 export const generateRecipe = async (ingredients, cuisine) => {
   const ingredientsList = Array.isArray(ingredients) ? ingredients.join(", ") : ingredients;
 
-  // Додаткові уточнення для української кухні
+  
   const ukrainianHint = cuisine === "Українська"
     ? " (врахуй традиційні страви — борщ, вареники, деруни, печеня, узвар, голубці)"
     : "";

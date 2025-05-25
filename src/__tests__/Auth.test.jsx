@@ -5,7 +5,6 @@ import { BrowserRouter } from "react-router-dom";
 import Auth from "../pages/Auth";
 import "@testing-library/jest-dom";
 
-// Мокаємо supabase
 vi.mock("../services/supabaseClient", () => ({
   supabase: {
     auth: {
@@ -25,7 +24,6 @@ describe("Auth page", () => {
   test("показує помилку при неправильному паролі або email", async () => {
     renderWithRouter(<Auth />);
 
-    // Ввести дані
     fireEvent.change(screen.getByPlaceholderText(/email/i), {
       target: { value: "wrong@example.com" },
     });
@@ -33,10 +31,8 @@ describe("Auth page", () => {
       target: { value: "wrongpass" },
     });
 
-    // Натиснути кнопку
     fireEvent.click(screen.getByRole("button", { name: /увійти/i }));
 
-    // Перевірити, що показано помилку
     const errorMsg = await screen.findByText(/invalid credentials/i);
     expect(errorMsg).toBeInTheDocument();
   });

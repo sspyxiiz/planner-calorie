@@ -94,9 +94,9 @@ const Measurements = ({ weight, setWeight, height, setHeight, history, onSave })
                 />
                 <Tooltip
                   labelFormatter={formatDate}
-                  contentStyle={{ backgroundColor: "#1f2937", border: "none" }} // темно-сіра підкладка
-                  labelStyle={{ color: "#ffffff" }} // білий текст дати
-                  itemStyle={{ color: "#3b82f6" }}  // синій для значення ваги
+                  contentStyle={{ backgroundColor: "#1f2937", border: "none" }} 
+                  labelStyle={{ color: "#ffffff" }} 
+                  itemStyle={{ color: "#3b82f6" }}  
                 />
                 <YAxis unit=" кг" />
                 <Tooltip labelFormatter={formatDate} />
