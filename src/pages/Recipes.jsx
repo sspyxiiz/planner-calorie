@@ -74,8 +74,8 @@ const Recipes = () => {
 
         {ingredientsStart !== -1 && instructionStart !== -1 && (
           <div>
-            <h3 className="text-lg font-semibold text-gray-800">🧂 Інгредієнти</h3>
-            <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">🧂 Інгредієнти</h3>
+            <ul className="list-disc list-inside text-sm text-gray-700 dark:text-gray-300 space-y-1">
               {lines.slice(ingredientsStart + 1, instructionStart).map((line, idx) => (
                 <li key={idx}>{line}</li>
               ))}
@@ -85,8 +85,8 @@ const Recipes = () => {
 
         {instructionStart !== -1 && (
           <div>
-            <h3 className="text-lg font-semibold text-gray-800">👨‍🍳 Інструкція</h3>
-            <ol className="list-decimal list-inside text-sm text-gray-700 space-y-1">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">👨‍🍳 Інструкція</h3>
+            <ol className="list-decimal list-inside text-sm text-gray-700 dark:text-gray-300 space-y-1">
               {lines.slice(instructionStart + 1, kbjuStart !== -1 ? kbjuStart : undefined).map((line, idx) => (
                 <li key={idx}>{line}</li>
               ))}
@@ -95,7 +95,7 @@ const Recipes = () => {
         )}
 
         {kbjuStart !== -1 && (
-          <div className="bg-green-50 border border-green-200 rounded p-4 text-sm text-green-800">
+          <div className="bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700 rounded p-4 text-sm text-green-800 dark:text-green-200">
             <h3 className="font-semibold mb-1">КБЖВ (на 100 г):</h3>
             {lines.slice(kbjuStart + 1).map((line, idx) => (
               <div key={idx}>{line}</div>
@@ -107,22 +107,26 @@ const Recipes = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
+    <div className="max-w-2xl mx-auto p-6 text-black dark:text-white">
       <h1 className="text-2xl font-bold mb-6 text-center">🍲 Генерація рецептів</h1>
 
-      <label className="block mb-2 font-medium">Інгредієнти (через кому):</label>
+      <label className="block mb-2 font-medium text-black dark:text-white">Інгредієнти (через кому):</label>
       <input
         value={ingredients}
         onChange={(e) => setIngredients(e.target.value)}
         placeholder="наприклад: курка, рис, морква"
-        className="border p-2 rounded w-full mb-4"
+        className="border p-2 rounded w-full mb-4
+                   bg-white text-black placeholder-gray-500
+                   dark:bg-zinc-800 dark:text-white dark:placeholder-gray-400"
       />
 
-      <label className="block mb-2 font-medium">Оберіть кухню:</label>
+      <label className="block mb-2 font-medium text-black dark:text-white">Оберіть кухню:</label>
       <select
         value={cuisine}
         onChange={(e) => setCuisine(e.target.value)}
-        className="border p-2 rounded w-full mb-6"
+        className="border p-2 rounded w-full mb-6
+                   bg-white text-black
+                   dark:bg-zinc-800 dark:text-white"
       >
         <option>Українська</option>
         <option>Італійська</option>
@@ -140,7 +144,7 @@ const Recipes = () => {
 
       {generatedText && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white max-w-2xl w-full rounded-lg p-6 shadow-lg relative overflow-y-auto max-h-[90vh]">
+          <div className="bg-white dark:bg-zinc-900 max-w-2xl w-full rounded-lg p-6 shadow-lg relative overflow-y-auto max-h-[90vh] text-black dark:text-white">
             <button
               onClick={() => setGeneratedText("")}
               className="absolute top-3 right-3 text-gray-500 hover:text-red-500 text-lg font-bold"
@@ -149,7 +153,7 @@ const Recipes = () => {
             </button>
 
             <h3 className="font-semibold mb-4 text-xl text-center">🍽️ Згенерований рецепт</h3>
-            <div className="text-gray-800 text-sm leading-relaxed space-y-4">
+            <div className="text-sm leading-relaxed space-y-4">
               {renderRecipePreview()}
             </div>
 

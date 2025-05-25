@@ -90,33 +90,33 @@ const MealPlanner = () => {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-center">Список рецептів</h2>
+      <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-white">Список рецептів</h2>
 
       {plans.length === 0 ? (
-        <p className="text-gray-500 text-center">Немає збережених рецептів.</p>
+        <p className="text-gray-500 dark:text-gray-400 text-center">Немає збережених рецептів.</p>
       ) : (
         <div ref={sliderRef} className="keen-slider">
           {plans.map((plan, index) => (
             <div className="keen-slider__slide px-2" key={plan.id}>
-              <Card className="bg-white shadow-md">
+              <Card className="bg-white dark:bg-zinc-800 text-gray-900 dark:text-gray-100 shadow-md">
                 <CardHeader>
-                  <CardTitle className="text-blue-800 text-xl">
+                  <CardTitle className="text-blue-800 dark:text-blue-400 text-xl">
                     Рецепт №{index + 1}
                   </CardTitle>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground dark:text-gray-400">
                     {plan.date} — {plan.meal_type}
                   </p>
                 </CardHeader>
 
                 <CardContent className="space-y-4 text-sm leading-relaxed">
-                  <h3 className="font-semibold text-gray-900">{plan.title}</h3>
+                  <h3 className="font-semibold text-gray-900 dark:text-white">{plan.title}</h3>
 
                   <div
-                    className="prose prose-sm max-w-none text-gray-800"
+                    className="prose prose-sm max-w-none text-gray-800 dark:text-gray-200"
                     dangerouslySetInnerHTML={{ __html: marked.parse(plan.notes || "") }}
                   ></div>
 
-                  <div className="text-gray-800">
+                  <div className="text-gray-800 dark:text-gray-100">
                     <strong>КБЖВ (на 100 г):</strong> Калорії: {plan.total_calories.toFixed(1)},
                     Білки: {plan.total_protein.toFixed(1)}г, Жири: {plan.total_fat.toFixed(1)}г,
                     Вуглеводи: {plan.total_carbs.toFixed(1)}г
